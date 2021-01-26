@@ -406,6 +406,9 @@ it as follows:
         user ID) and name for the user.
      5. The `display_name` and `display_icon` fields are used to
         display the login/registration buttons for the IdP.
+   * (Optional) You can configure the URL of your IdP's metadata XML
+     file by filling out the `metadata_url` field. Currently, this is
+     used to automatically keep the SAML certificates up-to-date.
 
 3. Install the certificate(s) required for SAML authentication.  You
     will definitely need the public certificate of your IdP.  Some IdP
