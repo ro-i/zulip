@@ -1,0 +1,28 @@
+Author: Tim Abbott <tabbott@zulip.com>
+Date:   Sun Sep 13 15:45:02 2020 -0700
+
+    presence: Disable live presence updates in larger realms.
+
+diff --git a/zerver/lib/actions.py b/zerver/lib/actions.py
+index fe17a2e263..9fcf9f9757 100644
+--- a/zerver/lib/actions.py
++++ b/zerver/lib/actions.py
+@@ -4075,13 +4075,17 @@ def do_update_user_activity(user_profile_id: int,
+         activity.save(update_fields=["last_visit", "count"])
+ 
+ def send_presence_changed(user_profile: UserProfile, presence: UserPresence) -> None:
++    # Performance mitigation for excessive presence changes.
++    user_ids = active_user_ids(user_profile.realm_id)
++    if len(user_ids) > 100:
++        return
+     presence_dict = presence.to_dict()
+     event = dict(type="presence",
+                  email=user_profile.email,
+                  user_id=user_profile.id,
+                  server_timestamp=time.time(),
+                  presence={presence_dict['client']: presence_dict})
+-    send_event(user_profile.realm, event, active_user_ids(user_profile.realm_id))
++    send_event(user_profile.realm, event, user_ids)
+ 
+ def consolidate_client(client: Client) -> Client:
+     # The web app reports a client as 'website'
